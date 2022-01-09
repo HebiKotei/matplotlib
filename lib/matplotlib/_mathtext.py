@@ -1993,6 +1993,7 @@ class Parser:
         p.subsuperop       = Forward()
         p.symbol           = Forward()
         p.symbol_name      = Forward()
+        p.text             = Forward()
         p.token            = Forward()
         p.underset         = Forward()
         p.unknown_symbol   = Forward()
@@ -2132,6 +2133,11 @@ class Parser:
                | Error("Expected \\operatorname{value}"))
         )
 
+        p.text <<= Group(
+            Suppress(Literal(r"\text"))
+            - QuotedString('{', '\\', endQuoteChar="}")
+        )
+
         p.placeable     <<= (
             p.accentprefixed  # Must be before accent so named symbols that are
                               # prefixed with an accent name work
@@ -2150,6 +2156,7 @@ class Parser:
             | p.sqrt
             | p.overline
             | p.operatorname
+            | p.text
         )
 
         p.simple        <<= (
@@ -2287,6 +2294,18 @@ class Parser:
 
     def non_math(self, s, loc, toks):
         s = toks[0].replace(r'\$', '$')
+        symbols = [Char(c, self.get_state(), math=False) for c in s]
+        hlist = Hlist(symbols)
+        # We're going into math now, so set font to 'it'
+        self.push_state()
+        self.get_state().font = mpl.rcParams['mathtext.default']
+        return [hlist]
+
+    def text(self, s, loc, toks):
+        self.pop_state()
+        s = toks[0][0].replace(r'\$', '$')
+        s = s.replace(r'\{', '{')
+        s = s.replace(r'\}', '}')
         symbols = [Char(c, self.get_state(), math=False) for c in s]
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
