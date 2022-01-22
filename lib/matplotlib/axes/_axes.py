@@ -1261,14 +1261,11 @@ class Axes(_AxesBase):
 
         # fix positions, noting that it can be a list of lists:
         if not np.iterable(positions):
-            positions = [positions]
+            positions = [np.asanyarray([positions])]
         elif any(np.iterable(position) for position in positions):
             positions = [np.asanyarray(position) for position in positions]
         else:
             positions = [np.asanyarray(positions)]
-
-        if len(positions) == 0:
-            return []
 
         poss = []
         for position in positions:
@@ -1297,15 +1294,15 @@ class Axes(_AxesBase):
         linewidths = np.asarray(linewidths)
 
         if len(lineoffsets) == 0:
-            lineoffsets = [None]
+            raise ValueError('lineoffsets cannot be empty')
         if len(linelengths) == 0:
-            linelengths = [None]
+            raise ValueError('linelengths cannot be empty')
         if len(linewidths) == 0:
-            lineoffsets = [None]
-        if len(linewidths) == 0:
-            lineoffsets = [None]
+            raise ValueError('linewidths cannot be empty')
         if len(colors) == 0:
-            colors = [None]
+            raise ValueError('colors cannot be empty')
+        if len(linestyles) == 0:
+            raise ValueError('linestyles cannot be empty')
         try:
             # Early conversion of the colors into RGBA values to take care
             # of cases like colors='0.5' or colors='C1'.  (Issue #8193)
