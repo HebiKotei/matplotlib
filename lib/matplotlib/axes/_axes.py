@@ -7817,7 +7817,7 @@ such objects
                 raise TypeError(
                     "spy() got an unexpected keyword argument 'linestyle'")
             ret = mlines.Line2D(
-                x, y, linestyle='None', marker=marker, markersize=markersize,
+                x, y, linestyle='none', marker=marker, markersize=markersize,
                 **kwargs)
             self.add_line(ret)
             nr, nc = Z.shape
