@@ -291,14 +291,14 @@ class Divider:
 class AxesLocator:
     """
     A callable object which returns the position and size of a given
-    AxesDivider cell.
+    `AxesDivider` cell.
     """
 
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
         Parameters
         ----------
-        axes_divider : AxesDivider
+        axes_divider : `AxesDivider`
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
@@ -359,7 +359,7 @@ class SubplotDivider(Divider):
         """
         Parameters
         ----------
-        fig : `matplotlib.figure.Figure`
+        fig : `~.figure.Figure`
 
         *args : tuple (*nrows*, *ncols*, *index*) or int
             The array of subplots in the figure has dimensions ``(nrows,

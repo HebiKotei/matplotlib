@@ -327,8 +327,10 @@ class GridHelperBase:
         """
         Return list of grid lines as a list of paths (list of points).
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"major", "minor"}
+        axis : {"both", "x", "y"}
         """
         return []
 
@@ -407,8 +409,10 @@ class GridHelperRectlinear(GridHelperBase):
         """
         Return list of gridline coordinates in data coordinates.
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"major", "minor"}
+        axis : {"both", "x", "y"}
         """
         gridlines = []
 

@@ -183,6 +183,7 @@ class Axis(maxis.XAxis):
 
     @_api.deprecated("3.6")
     def set_pane_pos(self, xys):
+        """Set pane position."""
         self._set_pane_pos(xys)
 
     def _set_pane_pos(self, xys):
@@ -292,6 +293,13 @@ class Axis(maxis.XAxis):
         return tickdir
 
     def draw_pane(self, renderer):
+        """
+        Draw pane.
+
+        Parameters
+        ----------
+        renderer : `~.RendererBase` subclass
+        """
         renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)

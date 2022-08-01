@@ -8,8 +8,15 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
     """
     Parameters
     ----------
-    pad : float
-        Fraction of the axes height.
+    ax : `matplotlib.axes.Axes`
+        Axes instance to create the RGB axes in.
+    pad : float, optional
+        Fraction of the axes height to pad.
+    axes_class : `matplotlib.axes.Axes` or None, optional
+        Axes class to use for the R, G, and B axes. If None, use
+        the same class as *ax*.
+    **kwargs :
+        Forwarded to *axes_class* init for R, G, and B axes.
     """
 
     divider = make_axes_locatable(ax)
@@ -89,12 +96,12 @@ class RGBAxes:
         ----------
         pad : float, default: 0
             fraction of the axes height to put as padding.
-        axes_class : matplotlib.axes.Axes
-
+        axes_class : `matplotlib.axes.Axes`
+            Axes class to use. If not provided ``_defaultAxesClass`` is used.
         *args
-            Unpacked into axes_class() init for RGB
+            Forwarded to *axes_class* init for RGB
         **kwargs
-            Unpacked into axes_class() init for RGB, R, G, B axes
+            Forwarded to *axes_class* init for RGB, R, G, B axes
         """
         axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         self.RGB = ax = axes_class(*args, **kwargs)
@@ -114,15 +121,15 @@ class RGBAxes:
         ----------
         r, g, b : array-like
             The red, green, and blue arrays.
-        kwargs : imshow kwargs
-            kwargs get unpacked into the imshow calls for the four images.
+        **kwargs :
+            Forwarded to `~.Axes.imshow` calls for the four images.
 
         Returns
         -------
-        rgb : matplotlib.image.AxesImage
-        r : matplotlib.image.AxesImage
-        g : matplotlib.image.AxesImage
-        b : matplotlib.image.AxesImage
+        rgb : `matplotlib.image.AxesImage`
+        r : `matplotlib.image.AxesImage`
+        g : `matplotlib.image.AxesImage`
+        b : `matplotlib.image.AxesImage`
         """
         if not (r.shape == g.shape == b.shape):
             raise ValueError(
