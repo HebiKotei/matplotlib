@@ -1025,18 +1025,6 @@ class RendererSVG(RendererBase):
         return char_id.replace("%20", "_")
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
-        """
-        Draw the text by converting them to paths using the textpath module.
-
-        Parameters
-        ----------
-        s : str
-            text to be converted
-        prop : `matplotlib.font_manager.FontProperties`
-            font property
-        ismath : bool
-            If True, use mathtext parser. If "TeX", use *usetex* mode.
-        """
         writer = self.writer
 
         writer.comment(s)

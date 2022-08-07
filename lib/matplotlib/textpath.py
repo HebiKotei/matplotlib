@@ -98,7 +98,7 @@ class TextToPath:
         from those::
 
             from matplotlib.path import Path
-            from matplotlib.textpath import TextToPath
+            from matplotlib.text import TextToPath
             from matplotlib.font_manager import FontProperties
 
             fp = FontProperties(family="Humor Sans", style="italic")
@@ -339,7 +339,7 @@ class TextPath(Path):
         The following creates a path from the string "ABC" with Helvetica
         font face; and another path from the latex fraction 1/2::
 
-            from matplotlib.textpath import TextPath
+            from matplotlib.text import TextPath
             from matplotlib.font_manager import FontProperties
 
             fp = FontProperties(family="Helvetica", style="italic")

@@ -340,26 +340,26 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         back_length : float, default: 0.15
             Fraction of the arrow behind the arrow crossing.
         head_width : float, default: 10
-            Width of arrow head, sent to ArrowStyle.
+            Width of arrow head, sent to `.ArrowStyle`.
         head_length : float, default: 15
-            Length of arrow head, sent to ArrowStyle.
+            Length of arrow head, sent to `.ArrowStyle`.
         tail_width : float, default: 2
-            Width of arrow tail, sent to ArrowStyle.
+            Width of arrow tail, sent to `.ArrowStyle`.
         text_props, arrow_props : dict
-            Properties of the text and arrows, passed to
-            `.textpath.TextPath` and `.patches.FancyArrowPatch`.
+            Properties of the text and arrows, passed to `.TextPath` and
+            `.FancyArrowPatch`.
         **kwargs
             Keyword arguments forwarded to `.AnchoredOffsetbox`.
 
         Attributes
         ----------
-        arrow_x, arrow_y : `matplotlib.patches.FancyArrowPatch`
+        arrow_x, arrow_y : `.FancyArrowPatch`
             Arrow x and y
-        text_path_x, text_path_y : `matplotlib.textpath.TextPath`
+        text_path_x, text_path_y : `.TextPath`
             Path for arrow labels
-        p_x, p_y : `matplotlib.patches.PathPatch`
+        p_x, p_y : `.PathPatch`
             Patch for arrow labels
-        box : `matplotlib.offsetbox.AuxTransformBox`
+        box : `.AuxTransformBox`
             Container for the arrows and labels.
 
         Notes
