@@ -979,6 +979,37 @@ def test_colorbar_extend_drawedges():
             np.testing.assert_array_equal(cbar.dividers.get_segments(), res)
 
 
+@image_comparison(['contourf_extend_patches.png'], remove_text=True,
+                  style='mpl20')
+def test_colorbar_contourf_extend_patches():
+    params = [
+        ('both', 5, ['\\', '//']),
+        ('min', 7, ['+']),
+        ('max', 2, ['|', '-', '/', '\\', '//']),
+        ('neither', 10, ['//', '\\', '||']),
+    ]
+
+    plt.rcParams['axes.linewidth'] = 2
+
+    fig = plt.figure(figsize=(10, 4))
+    subfigs = fig.subfigures(1, 2)
+
+    x = np.linspace(-2, 3, 50).reshape(1, -1)
+    y = np.linspace(-2, 3, 30).reshape(-1, 1)
+    z = np.cos(x) + np.sin(y)
+    x, y = x.flatten(), y.flatten()
+
+    cmap = mpl.colormaps["viridis"]
+    for orientation, subfig in zip(['horizontal', 'vertical'], subfigs):
+        axs = subfig.subplots(2, 2).ravel()
+        fig.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.95)
+        for ax, (extend, levels, hatches) in zip(axs, params):
+            cs = ax.contourf(x, y, z, levels, hatches=hatches,
+                             cmap=cmap, extend=extend)
+            fig.colorbar(cs, ax=ax, orientation=orientation, fraction=0.4,
+                         extendfrac=0.2, aspect=5)
+
+
 def test_negative_boundarynorm():
     fig, ax = plt.subplots(figsize=(1, 3))
     cmap = mpl.colormaps["viridis"]

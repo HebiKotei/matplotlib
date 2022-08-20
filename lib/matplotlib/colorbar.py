@@ -607,17 +607,19 @@ class Colorbar:
         self.dividers.set_segments(segments)
 
     def _add_solids_patches(self, X, Y, C, mappable):
-        hatches = mappable.hatches * len(C)  # Have enough hatches.
+        hatches = mappable.hatches * (len(C) + 1)  # Have enough hatches.
         patches = []
+        hatch_offset = 1 if self._extend_lower() else 0
         for i in range(len(X) - 1):
-            xy = np.array([[X[i, 0], Y[i, 0]],
+            xy = np.array([[X[i, 0], Y[i, 1]],
                            [X[i, 1], Y[i, 0]],
                            [X[i + 1, 1], Y[i + 1, 0]],
                            [X[i + 1, 0], Y[i + 1, 1]]])
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(C[i][0])),
-                                       hatch=hatches[i], linewidth=0,
-                                       antialiased=False, alpha=self.alpha)
+                                       hatch=hatches[i+hatch_offset],
+                                       linewidth=0, antialiased=False,
+                                       alpha=self.alpha)
             self.ax.add_patch(patch)
             patches.append(patch)
         self.solids_patches = patches
@@ -662,10 +664,11 @@ class Colorbar:
         mappable = getattr(self, 'mappable', None)
         if (isinstance(mappable, contour.ContourSet)
                 and any(hatch is not None for hatch in mappable.hatches)):
-            hatches = mappable.hatches
+            hatches = mappable.hatches * (len(self._y) + 1)
         else:
-            hatches = [None]
+            hatches = [None] * (len(self._y) + 1)
 
+        hatch_offset = 0
         if self._extend_lower():
             if not self.extendrect:
                 # triangle
@@ -688,6 +691,7 @@ class Colorbar:
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
             self._extend_patches.append(patch)
+            hatch_offset = 1
         if self._extend_upper():
             if not self.extendrect:
                 # triangle
@@ -700,10 +704,12 @@ class Colorbar:
             # add the patch
             val = 0 if self._long_axis().get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
+            hatch_idx = len(self._y) - 1 + hatch_offset
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color, alpha=self.alpha,
                 linewidth=0, antialiased=False,
-                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
+                transform=self.ax.transAxes, hatch=hatches[hatch_idx],
+                clip_on=False,
                 # Place it right behind the standard patches, which is
                 # needed if we updated the extends
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
