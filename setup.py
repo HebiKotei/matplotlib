@@ -29,10 +29,12 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from setuptools import setup, find_packages, Distribution, Extension
+from setuptools import setup, Distribution, Extension
 import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.sdist
+
+sys.path.append(str(Path(__file__).resolve().parent))
 
 import setupext
 from setupext import print_raw, print_status
@@ -258,77 +260,17 @@ if not (any('--' + opt in sys.argv
             package_data[key] = list(set(val + package_data[key]))
 
 setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
-    name="matplotlib",
-    description="Python plotting package",
     author="John D. Hunter, Michael Droettboom",
     author_email="matplotlib-users@python.org",
     url="https://matplotlib.org",
     download_url="https://matplotlib.org/stable/users/installing/index.html",
-    project_urls={
-        'Documentation': 'https://matplotlib.org',
-        'Source Code': 'https://github.com/matplotlib/matplotlib',
-        'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-        'Forum': 'https://discourse.matplotlib.org/',
-        'Donate': 'https://numfocus.org/donate-to-matplotlib'
-    },
-    long_description=Path("README.rst").read_text(encoding="utf-8"),
-    long_description_content_type="text/x-rst",
-    license="PSF",
     platforms="any",
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Framework :: Matplotlib',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Education',
-        'License :: OSI Approved :: Python Software Foundation License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Topic :: Scientific/Engineering :: Visualization',
-    ],
-
-    package_dir={"": "lib"},
-    packages=find_packages("lib"),
-    namespace_packages=["mpl_toolkits"],
     py_modules=["pylab"],
     # Dummy extension to trigger build_ext, which will swap it out with
     # real extensions that can depend on numpy for the build.
     ext_modules=[Extension("", [])],
     package_data=package_data,
 
-    python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
-    setup_requires=[
-        "certifi>=2020.06.20",
-        "numpy>=1.19",
-        "setuptools_scm>=7",
-    ],
-    install_requires=[
-        "contourpy>=1.0.1",
-        "cycler>=0.10",
-        "fonttools>=4.22.0",
-        "kiwisolver>=1.0.1",
-        "numpy>=1.19",
-        "packaging>=20.0",
-        "pillow>=6.2.0",
-        "pyparsing>=2.2.1",
-        "python-dateutil>=2.7",
-    ] + (
-        # Installing from a git checkout that is not producing a wheel.
-        ["setuptools_scm>=7"] if (
-            Path(__file__).with_name(".git").exists() and
-            os.environ.get("CIBUILDWHEEL", "0") != "1"
-        ) else []
-    ),
-    use_scm_version={
-        "version_scheme": "release-branch-semver",
-        "local_scheme": "node-and-date",
-        "write_to": "lib/matplotlib/_version.py",
-        "parentdir_prefix_version": "matplotlib-",
-        "fallback_version": "0.0+UNKNOWN",
-    },
     cmdclass={
         "build_ext": BuildExtraLibraries,
         "build_py": BuildPy,
