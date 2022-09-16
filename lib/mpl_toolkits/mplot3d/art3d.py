@@ -682,7 +682,8 @@ class Poly3DCollection(PolyCollection):
         triangulation and thus generates consistent surfaces.
     """
 
-    def __init__(self, verts, *args, zsort='average', **kwargs):
+    def __init__(self, verts, *args, zsort='average', shade=False,
+                 lightsource=None, **kwargs):
         """
         Parameters
         ----------
@@ -692,6 +693,10 @@ class Poly3DCollection(PolyCollection):
         zsort : {'average', 'min', 'max'}, default: 'average'
             The calculation method for the z-order.
             See `~.Poly3DCollection.set_zsort` for details.
+        shade : bool, default: True
+            Whether to shade *facecolors* and *edgecolors*.
+        lightsource : `~matplotlib.colors.LightSource`
+            The lightsource to use when *shade* is True.
         *args, **kwargs
             All other parameters are forwarded to `.PolyCollection`.
 
@@ -700,6 +705,20 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         """
+        if shade:
+            normals = _generate_normals(verts)
+            facecolor = kwargs.get('facecolors', None)
+            if facecolor is not None:
+                kwargs['facecolors'] = _shade_colors(
+                    facecolor, normals, lightsource
+                )
+
+            edgecolor = kwargs.get('edgecolors', None)
+            if edgecolor is not None:
+                kwargs['edgecolors'] = _shade_colors(
+                    edgecolor, normals, lightsource
+                )
+
         super().__init__(verts, *args, **kwargs)
         if isinstance(verts, np.ndarray):
             if verts.ndim != 3:
@@ -941,3 +960,84 @@ def _zalpha(colors, zs):
     sats = 1 - norm(zs) * 0.7
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
+
+
+def _generate_normals(polygons):
+    """
+    Compute the normals of a list of polygons.
+
+    Normals point towards the viewer for a face with its vertices in
+    counterclockwise order, following the right hand rule.
+
+    Uses three points equally spaced around the polygon.
+    This normal of course might not make sense for polygons with more than
+    three points not lying in a plane, but it's a plausible and fast
+    approximation.
+
+    Parameters
+    ----------
+    polygons : list of (M_i, 3) array-like, or (..., M, 3) array-like
+        A sequence of polygons to compute normals for, which can have
+        varying numbers of vertices. If the polygons all have the same
+        number of vertices and array is passed, then the operation will
+        be vectorized.
+
+    Returns
+    -------
+    normals : (..., 3) array
+        A normal vector estimated for the polygon.
+    """
+    if isinstance(polygons, np.ndarray):
+        # optimization: polygons all have the same number of points, so can
+        # vectorize
+        n = polygons.shape[-2]
+        i1, i2, i3 = 0, n//3, 2*n//3
+        v1 = polygons[..., i1, :] - polygons[..., i2, :]
+        v2 = polygons[..., i2, :] - polygons[..., i3, :]
+    else:
+        # The subtraction doesn't vectorize because polygons is jagged.
+        v1 = np.empty((len(polygons), 3))
+        v2 = np.empty((len(polygons), 3))
+        for poly_i, ps in enumerate(polygons):
+            n = len(ps)
+            i1, i2, i3 = 0, n//3, 2*n//3
+            v1[poly_i, :] = ps[i1, :] - ps[i2, :]
+            v2[poly_i, :] = ps[i2, :] - ps[i3, :]
+    return np.cross(v1, v2)
+
+
+def _shade_colors(color, normals, lightsource=None):
+    """
+    Shade *color* using normal vectors given by *normals*.
+    *color* can also be an array of the same length as *normals*.
+    """
+    if lightsource is None:
+        # chosen for backwards-compatibility
+        lightsource = mcolors.LightSource(azdeg=225, altdeg=19.4712)
+
+    with np.errstate(invalid="ignore"):
+        shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
+                 @ lightsource.direction)
+    mask = ~np.isnan(shade)
+
+    if mask.any():
+        # convert dot product to allowed shading fractions
+        in_norm = mcolors.Normalize(-1, 1)
+        out_norm = mcolors.Normalize(0.3, 1).inverse
+
+        def norm(x):
+            return out_norm(in_norm(x))
+
+        shade[~mask] = 0
+
+        color = mcolors.to_rgba_array(color)
+        # shape of color should be (M, 4) (where M is number of faces)
+        # shape of shade should be (M,)
+        # colors should have final shape of (M, 4)
+        alpha = color[:, 3]
+        colors = norm(shade)[:, np.newaxis] * color
+        colors[:, 3] = alpha
+    else:
+        colors = np.asanyarray(color).copy()
+
+    return colors
